@@ -1,5 +1,9 @@
 package com.example.listycitylab3;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -13,19 +17,27 @@ public class MainActivity extends AppCompatActivity
         implements AddCityFragment.AddCityDialogListener,
         EditCityFragment.EditCityDialogListener {
 
+    FirebaseFirestore db;
+    CollectionReference citiesRef;
+
     private ArrayList<City> dataList;
     private ListView cityList;
     private CityArrayAdapter cityAdapter;
 
     @Override
     public void editCity(City city) {
+        citiesRef.document(city.getName())
+                .set(city);
         cityAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void addCity(City city) {
-        cityAdapter.add(city);
-        cityAdapter.notifyDataSetChanged();
+        citiesRef.document(city.getName()).set(city);
+    }
+
+    public void deleteCity(City city) {
+        citiesRef.document(city.getName()).delete();
     }
 
     @Override
@@ -33,19 +45,15 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String[] cities = { "Edmonton", "Vancouver", "Toronto" };
-        String[] provinces = { "AB", "BC", "ON" };
+        db = FirebaseFirestore.getInstance();
+        citiesRef = db.collection("cities");
 
         dataList = new ArrayList<>();
-        for (int i = 0; i < cities.length; i++) {
-            dataList.add(new City(cities[i], provinces[i]));
-        }
 
         cityList = findViewById(R.id.city_list);
         cityAdapter = new CityArrayAdapter(this, dataList);
         cityList.setAdapter(cityAdapter);
 
-        // 🔽 ADD THIS BLOCK HERE
         cityList.setOnItemClickListener((parent, view, position, id) -> {
             City selectedCity = dataList.get(position);
             new EditCityFragment(selectedCity)
@@ -55,6 +63,18 @@ public class MainActivity extends AppCompatActivity
         FloatingActionButton fab = findViewById(R.id.button_add_city);
         fab.setOnClickListener(v -> {
             new AddCityFragment().show(getSupportFragmentManager(), "Add City");
+        });
+
+        citiesRef.addSnapshotListener((snapshots, error) -> {
+            if (error != null) return;
+
+            cityAdapter.clear();
+            for (QueryDocumentSnapshot doc : snapshots) {
+                String name = doc.getString("name");
+                String province = doc.getString("province");
+                cityAdapter.add(new City(name, province));
+            }
+            cityAdapter.notifyDataSetChanged();
         });
     }
 }

@@ -3,19 +3,34 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
     <TextView
         android:id="@+id/city_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:padding="20dp"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:text="City" />
+
     <TextView
         android:id="@+id/province_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="20dp"
+        android:textSize="24sp"
+        android:text="Province" />
+
+    <Button
+        android:id="@+id/button_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:textSize="30sp"
-        android:text="Province" />
+        android:text="Delete"
+        android:backgroundTint="#E53935"
+        android:textColor="#FFFFFF"
+        android:layout_marginEnd="8dp"/>
+
 </LinearLayout>
